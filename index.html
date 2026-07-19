@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Three.js 立方体</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: #111827;
+      }
+
+      canvas {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="module">
+      // 从 CDN 导入 Three.js 的全部核心功能。
+      import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.179.1/build/three.module.js";
+
+      // 创建一个用于容纳相机和立方体的 3D 场景。
+      const scene = new THREE.Scene();
+      // 将场景背景设置为深蓝灰色。
+      scene.background = new THREE.Color(0x111827);
+
+      // 创建透视相机，让物体呈现近大远小的视觉效果。
+      const camera = new THREE.PerspectiveCamera(
+        // 设置相机的垂直视野角度为 75 度。
+        75,
+        // 根据浏览器窗口尺寸设置相机宽高比。
+        window.innerWidth / window.innerHeight,
+        // 设置相机能够看到的最近距离。
+        0.1,
+        // 设置相机能够看到的最远距离。
+        100,
+        // 结束透视相机参数列表。
+      );
+      // 将相机沿 Z 轴向后移动，以便看见原点处的立方体。
+      camera.position.z = 4;
+
+      // 创建支持抗锯齿的 WebGL 渲染器。
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      // 设置像素比，并限制最大值以兼顾清晰度和性能。
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      // 让渲染画布填满整个浏览器窗口。
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      // 将渲染器生成的画布添加到页面中。
+      document.body.appendChild(renderer.domElement);
+
+      // 创建一个长、宽、高均为 2 的立方体几何体。
+      const geometry = new THREE.BoxGeometry(2, 2, 2);
+      // 创建法线材质，使用表面方向自动显示不同颜色。
+      const material = new THREE.MeshNormalMaterial();
+      // 将几何体和材质组合成可显示的立方体网格。
+      const cube = new THREE.Mesh(geometry, material);
+      // 将立方体添加到 3D 场景中。
+      scene.add(cube);
+
+      // 定义每一帧都会执行的动画函数。
+      function animate() {
+        // 让立方体绕 X 轴缓慢旋转。
+        cube.rotation.x += 0.003;
+        // 让立方体绕 Y 轴缓慢旋转。
+        cube.rotation.y += 0.005;
+        // 使用当前相机将场景绘制到画布上。
+        renderer.render(scene, camera);
+        // 结束动画函数。
+      }
+
+      // 启动渲染循环，使动画持续播放。
+      renderer.setAnimationLoop(animate);
+
+      // 监听浏览器窗口的尺寸变化。
+      window.addEventListener("resize", () => {
+        // 根据新的窗口尺寸更新相机宽高比。
+        camera.aspect = window.innerWidth / window.innerHeight;
+        // 应用相机投影参数的变化。
+        camera.updateProjectionMatrix();
+        // 将渲染画布调整为新的窗口尺寸。
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        // 根据当前屏幕更新像素比，并继续限制最大值为 2。
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        // 结束窗口尺寸变化时执行的回调函数。
+      });
+    </script>
+  </body>
+</html>
