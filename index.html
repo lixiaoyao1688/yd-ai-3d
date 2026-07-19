@@ -59,12 +59,46 @@
 
       // 创建一个长、宽、高均为 2 的立方体几何体。
       const geometry = new THREE.BoxGeometry(2, 2, 2);
-      // 创建法线材质，使用表面方向自动显示不同颜色。
-      const material = new THREE.MeshNormalMaterial();
+      // 创建纹理加载器，用于读取项目中的石头图片。
+      const textureLoader = new THREE.TextureLoader();
+      // 加载石头纹理图片。
+      const stoneTexture = textureLoader.load("./assets/stone-texture.png");
+      // 指定纹理使用标准的 sRGB 色彩空间，避免颜色失真。
+      stoneTexture.colorSpace = THREE.SRGBColorSpace;
+      // 设置纹理横向重复时的处理方式。
+      stoneTexture.wrapS = THREE.RepeatWrapping;
+      // 设置纹理纵向重复时的处理方式。
+      stoneTexture.wrapT = THREE.RepeatWrapping;
+      // 让石头纹理在每个立方体表面重复两次。
+      stoneTexture.repeat.set(2, 2);
+      // 提高倾斜观察纹理时的清晰度。
+      stoneTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+      // 创建使用石头纹理且表面较粗糙的标准材质。
+      const material = new THREE.MeshStandardMaterial({
+        // 将生成的石头纹理设置为材质颜色贴图。
+        map: stoneTexture,
+        // 设置较高粗糙度，使石头表面不会过度反光。
+        roughness: 0.85,
+        // 设置较低金属度，让材质保持石头而非金属的质感。
+        metalness: 0.05,
+        // 结束材质参数列表。
+      });
       // 将几何体和材质组合成可显示的立方体网格。
       const cube = new THREE.Mesh(geometry, material);
       // 将立方体添加到 3D 场景中。
       scene.add(cube);
+
+      // 创建环境光，让立方体背光面仍然保持可见。
+      const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+      // 将环境光添加到场景中。
+      scene.add(ambientLight);
+
+      // 创建平行光，为石头表面提供明暗层次。
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 2.5);
+      // 将平行光放置在场景的右上前方。
+      directionalLight.position.set(3, 4, 5);
+      // 将平行光添加到场景中。
+      scene.add(directionalLight);
 
       // 定义每一帧都会执行的动画函数。
       function animate() {
